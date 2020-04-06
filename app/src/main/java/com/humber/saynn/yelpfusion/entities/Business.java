@@ -12,8 +12,9 @@ public class Business {
     LatLng latlng;
     double rating;
     String url;
+    long views;
 
-    public Business(Bitmap image, String name, String description, String location, LatLng latlng, double rating, String url) {
+    public Business(Bitmap image, String name, String description, String location, LatLng latlng, double rating, String url, long views) {
         this.image = image;
         this.name = name;
         this.description = description;
@@ -21,6 +22,7 @@ public class Business {
         this.latlng = latlng;
         this.rating = rating;
         this.url = url;
+        this.views = views;
     }
 
     public Bitmap getImage() {
@@ -77,5 +79,13 @@ public class Business {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public long getViews() {
+        return views;
+    }
+
+    public void setViews(long views) {
+        this.views = views;
     }
 }
