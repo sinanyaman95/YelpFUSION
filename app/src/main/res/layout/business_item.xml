@@ -67,7 +67,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_launcher"
+                        android:src="@drawable/staricon"
                         android:adjustViewBounds="true"
                         android:scaleType="fitCenter"
                         android:maxHeight="30dp"/>

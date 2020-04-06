@@ -145,14 +145,19 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject object = jsonArray.getJSONObject(i);
                                 b.setName(object.getString("name"));
                                 Log.d("syDebug","Business name: " + b.getName());
-                                GetImageFromUrl image = new GetImageFromUrl(object.getString("image_url"));
-                                b.setImage(image.bitmap);
+                                String imageUrl = object.getString("image_url");
+                                //GetImageFromUrl image = new GetImageFromUrl(imageUrl);
+                                //image.doInBackground();
+                                //b.setImage(image.bitmap);
                                 JSONObject location = object.getJSONObject("location");
                                 b.setLocation(location.getString("address1"));
                                 b.setViews(object.getLong("review_count"));
-                                JSONObject coordinates = object.getJSONObject("coordinates");
+                                JSONArray categories = object.getJSONArray("categories");
+                                for(int j=0; j<categories.length();j++){
+                                    JSONObject aliasTitle = categories.getJSONObject(j);
+                                    b.setDescription(aliasTitle.getString("title"));
+                                }
                                 b.setRating(object.getDouble("rating"));
-                                b.setDescription("deneme");
                                 addToList(b);
                             }
                         } catch (JSONException e) {
@@ -168,9 +173,6 @@ public class MainActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 }
-
-
-
         ){
             @Override
             public String getBodyContentType() {
@@ -205,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected Bitmap doInBackground(String... url) {
-            String stringUrl = url[0];
+            String stringUrl = this.url;
             bitmap = null;
             InputStream inputStream;
             try {
