@@ -69,11 +69,9 @@ public class MainActivity extends AppCompatActivity {
         currentLocation = getLatLng();
         RequestQueueSingleton requestQueueSingleton = RequestQueueSingleton.getInstance(this);
         q = requestQueueSingleton.getRequestQueue();
-        businesses = getBusinessData(q);
+        getBusinessData(q);
 
-        BusinessAdapter businessAdapter = new BusinessAdapter(this, businesses);
-        businessRecycler.setAdapter(businessAdapter);
-        businessRecycler.setLayoutManager(new LinearLayoutManager(this));
+
     }
 
 
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<Business> getBusinessData(RequestQueue q) {
+    private boolean getBusinessData(RequestQueue q) {
         ArrayList<Business> temp = new ArrayList<>();
         String business_url = BASE_URL + BUSINESS_URL;
         Log.d("syDebug", "LatLng: " + currentLocation.latitude+"," + currentLocation.longitude);
@@ -155,11 +153,14 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject coordinates = object.getJSONObject("coordinates");
                                 b.setRating(object.getDouble("rating"));
                                 b.setDescription("deneme");
-                                businesses.add(b);
+                                addToList(b);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        BusinessAdapter businessAdapter = new BusinessAdapter(getApplicationContext(), getBusinessList());
+                        businessRecycler.setAdapter(businessAdapter);
+                        businessRecycler.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -185,10 +186,18 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         q.add(jsonObjectRequest);
-        return temp;
+        return true;
     }
 
-    class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
+    private ArrayList<Business> getBusinessList() {
+        return businesses;
+    }
+
+    private void addToList(Business b) {
+        businesses.add(b);
+    }
+
+    static class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         String url;
         Bitmap bitmap;
         public GetImageFromUrl(String url){
