@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">YELPFusion</string>
+    <string name="business_name">business name</string>
+    <string name="business_categories">business categories</string>
+    <string name="business_location">business location</string>
+    <string name="rating_example">4.5/5</string>
+    <string name="url">URL</string>
+    <string name="review_count_example">5234</string>
+</resources>
