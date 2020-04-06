@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String BASE_URL = "https://api.yelp.com/v3";
     private static final String BUSINESS_URL = "/businesses/north-india-restaurant-san-francisco";
-    private static final String SEARCH_URL = "//businesses/search?term=delis&latitude=";
+    private static final String SEARCH_URL = "/businesses/search?term=delis&latitude=";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 99;
     private static final String API_KEY = "rcZTLdXbUfdghaFUQu-On0AlNdn3_zfV4EMd1_UkVizGgfVcrW49lljmumdgbhFNFE46p7DJJW6m--H0QSXq67uH5-kUDowWzgY72V1hQcV9f5JwRVGUJGSGG1CKXnYx";
 
@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
         businesses = new ArrayList<>();
         businessRecycler = findViewById(R.id.businessRecycler);
         currentLocation = getLatLng();
-        q = RequestQueueSingleton.getInstance(this).getRequestQueue();
+        RequestQueueSingleton requestQueueSingleton = RequestQueueSingleton.getInstance(this);
+        q = requestQueueSingleton.getRequestQueue();
         businesses = getBusinessData(q);
 
         BusinessAdapter businessAdapter = new BusinessAdapter(this, businesses);
@@ -128,13 +129,13 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Business> getBusinessData(RequestQueue q) {
         ArrayList<Business> temp = new ArrayList<>();
         String business_url = BASE_URL + BUSINESS_URL;
+        Log.d("syDebug", "LatLng: " + currentLocation.latitude+"," + currentLocation.longitude);
         String search_url = BASE_URL + SEARCH_URL + currentLocation.latitude + "&longitude=" + currentLocation.longitude;
-        final JSONObject jsonBody = new JSONObject();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
                 search_url,
-                jsonBody,
+                null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -142,8 +143,10 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONArray jsonArray = new JSONArray("businesses");
                             for(int i = 0; i < jsonArray.length(); i++){
+
                                 JSONObject object = jsonArray.getJSONObject(i);
                                 b.setName(object.getString("name"));
+                                Log.d("syDebug","Business name: " + b.getName());
                                 b.setImage(getImageBitmap(object.getString("image_url")));
                                 JSONObject location = object.getJSONObject("location");
                                 b.setLocation(location.getString("address1"));
@@ -181,8 +184,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Content-Type", "application/json; charset=UTF-8");
-                params.put("Bearer", API_KEY);
+                params.put("Authorization", "Bearer " + API_KEY);
                 return params;
             }
         };
