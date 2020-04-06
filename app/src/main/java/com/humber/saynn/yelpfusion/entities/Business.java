@@ -14,6 +14,10 @@ public class Business {
     String url;
     long views;
 
+    public Business(){
+        new Business(null,"","","",null,0,"",0);
+    }
+
     public Business(Bitmap image, String name, String description, String location, LatLng latlng, double rating, String url, long views) {
         this.image = image;
         this.name = name;
