@@ -9,21 +9,19 @@ public class Business {
     String name;
     String description;
     String location;
-    LatLng latlng;
     double rating;
     String url;
     long views;
 
     public Business(){
-        new Business(null,"","","",null,0,"",0);
+        new Business(null,"","","",0,"",0);
     }
 
-    public Business(Bitmap image, String name, String description, String location, LatLng latlng, double rating, String url, long views) {
+    public Business(Bitmap image, String name, String description, String location, double rating, String url, long views) {
         this.image = image;
         this.name = name;
         this.description = description;
         this.location = location;
-        this.latlng = latlng;
         this.rating = rating;
         this.url = url;
         this.views = views;
@@ -59,14 +57,6 @@ public class Business {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public LatLng getLatlng() {
-        return latlng;
-    }
-
-    public void setLatlng(LatLng latlng) {
-        this.latlng = latlng;
     }
 
     public double getRating() {

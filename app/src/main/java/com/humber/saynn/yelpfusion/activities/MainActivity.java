@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     private LatLng getLatLng() {
         LatLng latLng;
         Context ctx = getApplicationContext();
-        LocationManager locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -141,24 +141,20 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         Business b = new Business();
                         try {
-                            JSONArray jsonArray = new JSONArray("businesses");
+                            JSONArray jsonArray = response.getJSONArray("businesses");
                             for(int i = 0; i < jsonArray.length(); i++){
 
                                 JSONObject object = jsonArray.getJSONObject(i);
                                 b.setName(object.getString("name"));
                                 Log.d("syDebug","Business name: " + b.getName());
-                                b.setImage(getImageBitmap(object.getString("image_url")));
+                                GetImageFromUrl image = new GetImageFromUrl(object.getString("image_url"));
+                                b.setImage(image.bitmap);
                                 JSONObject location = object.getJSONObject("location");
                                 b.setLocation(location.getString("address1"));
                                 b.setViews(object.getLong("review_count"));
-                                JSONObject coordinates = object.getJSONObject("categories");
-                                b.setLatlng(new LatLng(
-                                        coordinates.getDouble("latitude"),
-                                        coordinates.getDouble("longtitude")));
+                                JSONObject coordinates = object.getJSONObject("coordinates");
                                 b.setRating(object.getDouble("rating"));
-                                JSONArray categories = object.getJSONArray("categories");
-                                JSONObject categoryObject = categories.getJSONObject(0);
-                                b.setDescription(categoryObject.getString("Title"));
+                                b.setDescription("deneme");
                                 businesses.add(b);
                             }
                         } catch (JSONException e) {
@@ -192,20 +188,28 @@ public class MainActivity extends AppCompatActivity {
         return temp;
     }
 
-    private Bitmap getImageBitmap(String imageUrl) {
+    class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
+        String url;
         Bitmap bitmap;
-        try {
-            URL url = new URL(imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            bitmap = BitmapFactory.decodeStream(input);
-        } catch (IOException e) {
-            // Log exception
-            return null;
+        public GetImageFromUrl(String url){
+            this.url = url;
         }
-        return bitmap;
-
+        @Override
+        protected Bitmap doInBackground(String... url) {
+            String stringUrl = url[0];
+            bitmap = null;
+            InputStream inputStream;
+            try {
+                inputStream = new java.net.URL(stringUrl).openStream();
+                bitmap = BitmapFactory.decodeStream(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+        @Override
+        protected void onPostExecute(Bitmap bitmap){
+            super.onPostExecute(bitmap);
+        }
     }
 }
