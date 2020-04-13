@@ -7,6 +7,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.humber.saynn.yelpfusion.activities.MainActivity;
 
 public class RequestQueueSingleton {
     private static RequestQueueSingleton instance;
@@ -38,8 +39,8 @@ public class RequestQueueSingleton {
 
     public static void make(Context ctx, String query, Response.Listener<String>
             listener, Response.ErrorListener errorListener) {
-        String url = "https://itunes.apple.com/search?term=" + query
-                + "&country=US";
+        String location = "latitude=37.786942&longitude=-122.399643";
+        String url = MainActivity.BASE_URL + MainActivity.AUTOCOMPLETE_URL + location;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 listener, errorListener);
         RequestQueueSingleton.getInstance(ctx).addToRequestQueue(stringRequest);

@@ -57,9 +57,10 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String BASE_URL = "https://api.yelp.com/v3";
-    private static final String BUSINESS_URL = "/businesses/north-india-restaurant-san-francisco";
-    private static final String SEARCH_URL = "/businesses/search?term=delis&latitude=";
+    public static final String BASE_URL = "https://api.yelp.com/v3";
+    public static final String BUSINESS_URL = "/businesses/north-india-restaurant-san-francisco";
+    public static final String SEARCH_URL = "/businesses/search?term=delis&latitude=";
+    public static final String AUTOCOMPLETE_URL = "/autocomplete?text=del&";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 99;
     private static final String API_KEY = "rcZTLdXbUfdghaFUQu-On0AlNdn3_zfV4EMd1_UkVizGgfVcrW49lljmumdgbhFNFE46p7DJJW6m--H0QSXq67uH5-kUDowWzgY72V1hQcV9f5JwRVGUJGSGG1CKXnYx";
     private static final int TRIGGER_AUTO_COMPLETE = 100;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         final AppCompatAutoCompleteTextView autoCompleteTextView =
                 findViewById(R.id.autoCompleteTextView);
         final TextView selectedText = findViewById(R.id.selected_item);
-        autocompleteAdapter = new AutocompleteAdapter(this, R.layout.support_simple_spinner_dropdown_item);
+        autocompleteAdapter = new AutocompleteAdapter(this, android.R.layout.simple_dropdown_item_1line);
         autoCompleteTextView.setThreshold(2);
         autoCompleteTextView.setAdapter(autocompleteAdapter);
         autoCompleteTextView.setOnItemClickListener(
@@ -130,7 +131,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void makeApiCall(String str) {
-
+        RequestQueueSingleton.make(this, str, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //parsing logic, please change it as per your requirement
+                List<String> stringList = new ArrayList<>();
+                try {
+                    JSONObject responseObject = new JSONObject(response);
+                    JSONArray array = responseObject.getJSONArray("results");
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject row = array.getJSONObject(i);
+                        stringList.add(row.getString("trackName"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //IMPORTANT: set data here and notify
+                autocompleteAdapter.setData(stringList);
+                autocompleteAdapter.notifyDataSetChanged();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
     }
 
 
