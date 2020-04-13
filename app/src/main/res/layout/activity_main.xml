@@ -6,27 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
-    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-        android:id="@+id/autoCompleteTextView"
+    <LinearLayout
+        android:id="@+id/autoCompleteLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/selected_item"
-        android:maxLines="1"
-        android:inputType="text"/>
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/selected_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/autoCompleteTextView"
-        app:layout_constraintBottom_toTopOf="@id/businessRecycler"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"/>
 
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:inputType="text"/>
+
+        <TextView
+            android:id="@+id/selected_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/businessRecycler"
@@ -34,7 +35,7 @@
         android:layout_height="wrap_content"
         tools:listitem="@layout/business_item"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/selected_item"
+        app:layout_constraintTop_toBottomOf="@id/autoCompleteLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
