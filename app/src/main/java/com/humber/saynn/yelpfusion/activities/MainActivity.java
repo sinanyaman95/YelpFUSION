@@ -2,6 +2,7 @@ package com.humber.saynn.yelpfusion.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,7 +17,15 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -28,6 +37,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.model.LatLng;
 import com.humber.saynn.yelpfusion.R;
+import com.humber.saynn.yelpfusion.adapters.AutocompleteAdapter;
 import com.humber.saynn.yelpfusion.adapters.BusinessAdapter;
 import com.humber.saynn.yelpfusion.entities.Business;
 import com.humber.saynn.yelpfusion.service.RequestQueueSingleton;
@@ -52,25 +62,74 @@ public class MainActivity extends AppCompatActivity {
     private static final String SEARCH_URL = "/businesses/search?term=delis&latitude=";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 99;
     private static final String API_KEY = "rcZTLdXbUfdghaFUQu-On0AlNdn3_zfV4EMd1_UkVizGgfVcrW49lljmumdgbhFNFE46p7DJJW6m--H0QSXq67uH5-kUDowWzgY72V1hQcV9f5JwRVGUJGSGG1CKXnYx";
-
+    private static final int TRIGGER_AUTO_COMPLETE = 100;
+    private static final long AUTO_COMPLETE_DELAY = 300;
 
     RecyclerView businessRecycler;
     ArrayList<Business> businesses;
     RequestQueue q;
     LatLng currentLocation;
+    AutocompleteAdapter autocompleteAdapter;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        businesses = new ArrayList<>();
+        final AppCompatAutoCompleteTextView autoCompleteTextView =
+                findViewById(R.id.autoCompleteTextView);
+        final TextView selectedText = findViewById(R.id.selected_item);
+        autocompleteAdapter = new AutocompleteAdapter(this, R.layout.support_simple_spinner_dropdown_item);
+        autoCompleteTextView.setThreshold(2);
+        autoCompleteTextView.setAdapter(autocompleteAdapter);
+        autoCompleteTextView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        selectedText.setText(autocompleteAdapter.getObject(position));
+                    }
+                });
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int
+                    count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                handler.removeMessages(TRIGGER_AUTO_COMPLETE);
+                handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
+                        AUTO_COMPLETE_DELAY);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.what == TRIGGER_AUTO_COMPLETE) {
+                    if (!TextUtils.isEmpty(autoCompleteTextView.getText())) {
+                        makeApiCall(autoCompleteTextView.getText().toString());
+                    }
+                }
+                return false;
+            }
+        });
+
+    businesses = new ArrayList<>();
         businessRecycler = findViewById(R.id.businessRecycler);
         currentLocation = getLatLng();
         RequestQueueSingleton requestQueueSingleton = RequestQueueSingleton.getInstance(this);
         q = requestQueueSingleton.getRequestQueue();
         getBusinessData(q);
 
+
+    }
+
+    private void makeApiCall(String str) {
 
     }
 
@@ -137,11 +196,11 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Business b = new Business();
+
                         try {
                             JSONArray jsonArray = response.getJSONArray("businesses");
                             for(int i = 0; i < jsonArray.length(); i++){
-
+                                Business b = new Business();
                                 JSONObject object = jsonArray.getJSONObject(i);
                                 b.setName(object.getString("name"));
                                 Log.d("syDebug","Business name: " + b.getName());

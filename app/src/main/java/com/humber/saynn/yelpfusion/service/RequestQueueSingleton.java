@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 public class RequestQueueSingleton {
@@ -33,4 +35,14 @@ public class RequestQueueSingleton {
     public <T> void addToRequestQueue(Request<T> req) {
         getRequestQueue().add(req);
     }
+
+    public static void make(Context ctx, String query, Response.Listener<String>
+            listener, Response.ErrorListener errorListener) {
+        String url = "https://itunes.apple.com/search?term=" + query
+                + "&country=US";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                listener, errorListener);
+        RequestQueueSingleton.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
 }
